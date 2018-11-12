@@ -26,7 +26,7 @@ for guild_id in guild_ids:
     guild.id = guild_id
     guilds[guild_id] = guild
     guild.channels = {}
-    guild.members = []
+    guild.members = set()
     for row in csv.reader(open(f"{PULLCORD_DIR}/channels/{guild_id}/guild.tsv"), delimiter='\t'):
         time, fetchtype, action, type, id = row[0:5]
         data = row[5:]
@@ -43,9 +43,9 @@ for guild_id in guild_ids:
             guild.channels[id] = channel
         elif type == "member":
             if action == "add":
-                guild.members.append(id)
-            elif action == "delete":
-                guild.members.delete(id)
+                guild.members.add(id)
+            elif action == "del" and id in guild.members:
+                guild.members.remove(id)
     
     guild.channels = dict(sorted(guild.channels.items(), key=lambda c: int(c[1].pos) + (1000 if c[1].chantype == "voice" else 0)))
     
